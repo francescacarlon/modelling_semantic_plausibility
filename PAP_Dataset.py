@@ -13,7 +13,8 @@ This is how each line looks after splitting:
 
 """
 from collections import Counter
-
+import statistics
+import ast
 
 def open_file(file_path):
     # Open file
@@ -38,7 +39,7 @@ def split_file_contents(content):
 
 """
 1) The dataset provides abstractness combinations of a = abstract, m = mid-range, c = concrete for each triplet. 
-The following function analyzes abstractness combinations and tries to answer the questions:
+The abstractness_combination function analyzes abstractness combinations and tries to answer the questions:
 How many combinations of a-m-c are there in the dataset? Which is the most common? Which is the least common?
 Outputs: 27 combinations, 'm-a-a' is the most common, 'm-m-a' is the least common. 
 
@@ -51,7 +52,6 @@ def abstractness_combination(dataset):
         if len(sublist) > 2 and sublist[2] != 'abstractness_combination':  # check len and exclude column title
             amc_combinations.append(sublist[2])  # Take elements in index 2 and group them
             # Output ex. ['a-m-a', 'a-c-m', 'a-m-a', 'a-c-m', 'a-c-m',...]
-
     # return amc_combinations
 
     # Used Counter method to count the occurrences of each combination
@@ -66,8 +66,36 @@ def abstractness_combination(dataset):
     return ranked_combinations
 
 
+"""
+
+2) The average_distribution function averages the ratings provided by annotators. Ratings here refer to what extent
+they considered the event plausible (5) or implausible (1). 
+The function aims to provide insights on how plausible each event was perceived. 
+
+"""
+
+
+def average_distribution(dataset):
+    ratings_average = []  # Here the ratings will be stored
+
+    for sublist in dataset:  # loop goes through each sublist of dataset
+        if len(sublist) > 3 and sublist[3] != 'rating':  # check len and exclude column title
+            # Convert the string representation of a list to an actual list
+            rating_values = ast.literal_eval(sublist[3])
+            # Output ex. ['[2, 5, 4, 5, 5, 2, 5, 5, 5, 5]', '[5, 5, 5, 5, 4, 5, 5, 4]',...]']
+        # return ratings
+
+            # Calculate the mean of the numerical values for each sublist
+            sublist_average = statistics.mean(rating_values)
+
+            ratings_average.append(sublist_average)
+            # Output ex. [4.3, 4.75, 3.888888888888889, 3.7, 3.5, 4.375, 3.888888888888889,...]
+    return ratings_average
+
+
 file_path = 'dataset.tsv'
 file_content = open_file(file_path)
 # print(split_file_contents(file_content))
-# dataset = split_file_contents(file_content)
+dataset = split_file_contents(file_content)
 # print(abstractness_combination(dataset))
+print(average_distribution(dataset))
