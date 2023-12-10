@@ -95,9 +95,37 @@ def average_distribution(dataset):
     return ratings_average
 
 
+"""
+
+3) The dataset presents original labels ('plausible' or 'implausible') serving as gold standard. 
+The annotators voted 0 for implausibility and 1 for plausibility and the majority was assigned in the majority_binary section. 
+'Unsure' denotes disagreement. 
+The function labels_agreement explores the relations between the given standard and the binary setup from annotators. 
+The goal is to answer the question: to what extent do the experimenters and the annotators agree?
+
+"""
+
+
+def labels_agreement(dataset):
+    labels_lists = []  # List to store lists of corresponding standard and binary labels
+
+    for sublist in dataset:
+        if len(sublist) > 1 and sublist[1]!='original_label' :
+            if len(sublist) > 6 and sublist[6]!='majority_binary':
+                standard_label = sublist[1]
+                binary_label = sublist[6]
+
+                # Create a new list with standard and binary labels for each sublist
+                labels_lists.append([standard_label, binary_label])
+                # Output ex. [['plausible', '1'], ['implausible', 'unsure'], ['implausible', '0'], ...]]
+
+    return labels_lists
+
+
 file_path = 'dataset.tsv'
 file_content = open_file(file_path)
 # print(split_file_contents(file_content))
 dataset = split_file_contents(file_content)
 # print(abstractness_combination(dataset))
 # print(average_distribution(dataset))
+# print(labels_agreement(dataset))
