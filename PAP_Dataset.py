@@ -12,9 +12,11 @@ This is how each line looks after splitting:
 ['ability means mobility', 'plausible', 'a-m-a', '[2, 5, 4, 5, 5, 2, 5, 5, 5, 5]', '5', '[0.0, 20.0, 10.0, 70.0]', '1', '[80.0, 20.0]']
 
 """
+
 from collections import Counter
 import statistics
 import ast
+
 
 def open_file(file_path):
     # Open file
@@ -98,4 +100,4 @@ file_content = open_file(file_path)
 # print(split_file_contents(file_content))
 dataset = split_file_contents(file_content)
 # print(abstractness_combination(dataset))
-print(average_distribution(dataset))
+# print(average_distribution(dataset))
