@@ -122,6 +122,45 @@ def labels_agreement(dataset):
     return labels_lists
 
 
+"""
+
+4) The dataset provides with three-element-events and the events_representation functions aims to the analysis of
+the equality of representation for each noun/verb/noun in the events (subject, verb, object). 
+Therefore, it aims to answer the question: is each noun/verb/noun represented equally in the events?
+
+"""
+
+
+def events_representation(dataset):
+    events_split = []  # Here the split events will be stored
+
+    for sublist in dataset:  # loop goes through each sublist of dataset
+        if len(sublist) > 0 and sublist[0] != 'event':  # check len and exclude column title
+            event = sublist[0]  # Take the event from the sublist
+            split_event = event.split()  # Split the event into words
+            events_split.append(split_event)
+            # Output ex. [['ability', 'means', 'mobility'], ['ability', 'permits', 'multiplication'], ...]]
+
+    # return events_split
+
+    word_counts = {}
+    for event in events_split:
+        for position, word in enumerate(event):
+            if position == 0:
+                position_label = "SUBJ"
+            elif position == 1:
+                position_label = "VERB"
+            else:
+                position_label = "OBJ"
+
+            # Use tuple (word, position) as key
+            key = (word, position_label)
+            # Update counts in the dictionary
+            word_counts[key] = word_counts.get(key, 0) + 1
+            # Output ex. {('ability', 'SUBJ'): 2, ('means', 'VERB'): 8, ('mobility', 'OBJ'): 3, ...}
+    return word_counts
+
+
 file_path = 'dataset.tsv'
 file_content = open_file(file_path)
 # print(split_file_contents(file_content))
@@ -129,3 +168,4 @@ dataset = split_file_contents(file_content)
 # print(abstractness_combination(dataset))
 # print(average_distribution(dataset))
 # print(labels_agreement(dataset))
+# print(events_representation(dataset))
