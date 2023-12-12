@@ -16,6 +16,7 @@ This is how each line looks after splitting:
 from collections import Counter
 import statistics
 import ast
+import csv
 
 
 def open_file(file_path):
@@ -40,6 +41,7 @@ def split_file_contents(content):
 
 
 """
+
 1) The dataset provides abstractness combinations of a = abstract, m = mid-range, c = concrete for each triplet. 
 The abstractness_combination function analyzes abstractness combinations and tries to answer the questions:
 How many combinations of a-m-c are there in the dataset? Which is the most common? Which is the least common?
@@ -161,6 +163,109 @@ def events_representation(dataset):
     return word_counts
 
 
+"""
+
+5) The function check_overlap checks if overlap between dev/train/test set (SV, VO, SO combinations) occurs
+in order to make sure that the dataset we will base the model on  performs well on unseen data. 
+Output: 0 overlapping between the sets. 
+
+"""
+
+
+def check_overlap(data):
+
+    datasets = ["dev",'train','test']
+    dictionary = {}
+
+    for dataset in datasets:
+        dataset_file = dataset + ".csv"
+        with open(dataset_file) as file:
+            reader = csv.reader(file)
+            SVlist = []
+            VOlist = []
+            SOlist = []
+            counter = 0
+            for row in reader:
+                counter += 1
+                # Skip header row
+                if counter != 1:
+                    event = row[0].split()
+                    noun1 = event[0]
+                    verb = event[1]
+                    noun2 = event[2]
+                    SVlist.append((noun1, verb))
+                    VOlist.append((verb, noun2))
+                    SOlist.append((noun1, noun2))
+            dictionary[dataset] = [SVlist, VOlist, SOlist]
+
+    # Dev/Train + Train/Dev
+
+    overlap = []
+    for number, pair_list in enumerate(dictionary['dev']):
+        for count, pair in enumerate(pair_list):
+            try:
+                if pair == dictionary['train'][number][count]:
+                    overlap.append(pair)
+            except:
+                pass
+    print(f"Overlap count: {len(overlap)} / Overlap list: {overlap})")
+
+    overlap = []
+    for number, pair_list in enumerate(dictionary['train']):
+        for count, pair in enumerate(pair_list):
+            try:
+                if pair == dictionary['dev'][number][count]:
+                    overlap.append(pair)
+            except:
+                pass
+    print(f"Overlap count: {len(overlap)} / Overlap list: {overlap})")
+
+    # Train/Test + Test/Train
+
+    overlap = []
+    for number, pair_list in enumerate(dictionary['train']):
+        for count, pair in enumerate(pair_list):
+            try:
+                if pair == dictionary['test'][number][count]:
+                    overlap.append(pair)
+            except:
+                pass
+    print(f"Overlap count: {len(overlap)} / Overlap list: {overlap})")
+
+    overlap = []
+    for number, pair_list in enumerate(dictionary['test']):
+        for count, pair in enumerate(pair_list):
+            try:
+                if pair == dictionary['train'][number][count]:
+                    overlap.append(pair)
+            except:
+                pass
+    print(f"Overlap count: {len(overlap)} / Overlap list: {overlap})")
+
+    # Test/Dev + Dev/Test
+
+    overlap = []
+    for number, pair_list in enumerate(dictionary['test']):
+        for count, pair in enumerate(pair_list):
+            try:
+                if pair == dictionary['dev'][number][count]:
+                    overlap.append(pair)
+            except:
+                pass
+    print(f"Overlap count: {len(overlap)} / Overlap list: {overlap})")
+
+    overlap = []
+    for number, pair_list in enumerate(dictionary['dev']):
+        for count, pair in enumerate(pair_list):
+            try:
+                if pair == dictionary['test'][number][count]:
+                    overlap.append(pair)
+            except:
+                pass
+    print(f"Overlap count: {len(overlap)} / Overlap list: {overlap})")
+    return overlap
+
+
 file_path = 'dataset.tsv'
 file_content = open_file(file_path)
 # print(split_file_contents(file_content))
@@ -169,3 +274,4 @@ dataset = split_file_contents(file_content)
 # print(average_distribution(dataset))
 # print(labels_agreement(dataset))
 # print(events_representation(dataset))
+# print(check_overlap(dataset))
