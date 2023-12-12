@@ -1,0 +1,139 @@
+[Code]
+
+Run analyze_pep.py in a folder with the following PEP-3K files to analyze them:
+- "neg-all.txt" and "pos-all.txt"
+- "dev.csv", "train.csv" and "test.csv"
+- folder "noun_bin_annotations" with the 6 world knowledge "noun2" .p files
+
+[Characteristics Explanation & Motivation]
+
+№1: Measure the overlap between the dev/train/test.csv splits by looking at the Subject-Verb, Verb-Object and Subject-Object pairs. For example, if the dev split has the event "hamster eats ball" and the train split has the event "hamster eats car", this is 1 SV overlap. We analyze this characteristic in both datasets to check the quality of the data in terms of developing and training the model.
+№2: Measure how often each noun and verb is represented in the events (of "neg-all.txt" and "pos-all.txt"). We separate words into 5 categories based on their usage e.g. if they are used 5 or fewer times they are considered "infrequent". We analyze this characteristic because the paper mentions how low numbers of event frames can impact model performance, and we want to see which words are under or overrepresented.
+№3: Measure how many nouns are in each category of each world knowledge feature (using the 6 world knowledge .p files). For example, sentience has 6 categories (rock, tree, ant, cat, chimp, man) and the distribution could look like this: {5, 15, 20, 5, 55, 20}, meaning most nouns have the sentience of a chimp. Similarly to №2, this characteristic can also help us measure the quality, variety and symmetry of the dataset.
+№4: Calculate the difference of world knowledge categories in the events (of "neg-all.txt" and "pos-all.txt"). For example, in the event "hamster eats car", we look at all 6 world knowledge features of both "cat" and "car" and we subtract the difference by representing each category with a number. For this event, if we look at size, this could look like this: mouse = 1, car = 5, difference = -4. For the whole event, we could have {-4, 2, 0, 1, -3, -1} for all world knowledge features. Finally, we look at how often each difference for each world knowledge category is present e.g. for size, the results may show that subjects and objects often have a big difference in size. The motivation for this characteristic is the same as №3. 
+№5: Augment the data with the highly-specific world knowledge attributes mentioned in the error analysis part of the paper (also seen in the supplementary material pdf). We take the top 3 attributes (edibility, naturalness, hollowness) based on their listed percentage of error appearance/relevance and apply them to 50 nouns from the dataset using categories we created. The nouns with their new world knowledge features can also be found at the end of the python file. We perform this augmentation because the paper states that these features should help improve model performance. This augmentation could easily be expanded with more time after the submission.
+
+[Note]
+
+The world knowledge categories differ slightly from their description in the paper. For example, for mass-count, "legos" are listed as "pebbles" in the paper. Additionally, the size and weight categories actually measure between landmarks instead of using the exact landmarks.
+
+[Characteristics Results]
+
+№1: There was a single overlap between all splits (SV:"bottle ejaculate"), indicating a high dataset variety.
+
+№2: Word representation
+
+Word frequency categories: rare <5, infrequent <11, average <25, frequent <51, very frequent >=75
+Categorized word distribution: {'rare': 242, 'infrequent': 78, 'average': 208, 'frequent': 31, 'very frequent': 18}
+
+№3: Categories and label distribution
+
+Mass-count i.e. countability & separability
+Categories: 4
+Proper order: milk, sand, pebbles, car
+Countwise masscount distribution -> {'CAR': 368, 'LEGOS': 20, 'MILK': 42, 'SAND': 7}
+Percentagewise masscount distribution -> {'CAR': 84.21, 'LEGOS': 4.58, 'MILK': 9.61, 'SAND': 1.6}
+
+Phase i.e. gas/liquid/solid
+Categories: 3
+Proper order: smoke, milk, wood
+Countwise phase distribution -> {'WOOD': 402, 'MILK': 20, 'SMOKE': 15}
+Percentagewise phase distribution -> {'WOOD': 91.99, 'MILK': 4.58, 'SMOKE': 3.43}
+
+Rigidity
+Categories: 5
+Proper order: water, skin, leather, wood, metal
+Countwise rigidity distribution -> {'SKIN': 165, 'WOOD': 68, 'LEATHER/PLASTIC': 53, 'METAL': 92, 'WATER': 59}
+Percentagewise rigidity distribution -> {'SKIN': 37.76, 'WOOD': 15.56, 'LEATHER/PLASTIC': 12.13, 'METAL': 21.05, 'WATER': 13.5}
+
+Sentience
+Categories: 6
+Proper order: rock, tree, ant, cat, chimp, man
+Countwise sentience distribution -> {'MAN': 47, 'ROCK': 318, 'TREE': 21, 'CAT': 27, 'CHIMP': 7, 'ANT': 17}
+Percentagewise sentience distribution -> {'MAN': 10.76, 'ROCK': 72.77, 'TREE': 4.81, 'CAT': 6.18, 'CHIMP': 1.6, 'ANT': 3.89}
+
+Size
+Categories: 7
+Proper order: watch, book, cat, person, jeep, stadium
+Countwise size distribution -> {'CAT-PERSON': 93, 'WATCH-BOOK': 111, 'PERSON-JEEP': 48, 'BOOK-CAT': 71, '-WATCH': 76, 'JEEP-STADIUM': 28, 'STADIUM-': 10}
+Percentagewise size distribution -> {'CAT-PERSON': 21.28, 'WATCH-BOOK': 25.4, 'PERSON-JEEP': 10.98, 'BOOK-CAT': 16.25, '-WATCH': 17.39, 'JEEP-STADIUM': 6.41, 'STADIUM-': 2.29}
+
+Weight
+Categories: 7
+Proper order: watch, book, dumbbell, man, jeep, stadium
+Countwise weight distribution -> {'DUMBBELL-PERSON': 77, '-WATCH': 107, 'WATCH-BOOK': 111, 'BOOK-DUMBBELL': 80, 'PERSON-JEEP': 28, 'JEEP-STADIUM': 25, 'STADIUM-': 9}
+Percentagewise weight distribution -> {'DUMBBELL-PERSON': 17.62, '-WATCH': 24.49, 'WATCH-BOOK': 25.4, 'BOOK-DUMBBELL': 18.31, 'PERSON-JEEP': 6.41, 'JEEP-STADIUM': 5.72, 'STADIUM-': 2.06}
+
+№4: World knowledge difference
+
+Countwise difference distribution of ('masscount', {-3: 168, -2: 35, -1: 22, 0: 2120, 1: 105, 2: 59, 3: 563})
+Countwise difference distribution of ('phase', {-2: 83, -1: 102, 0: 2291, 1: 327, 2: 269})
+Countwise difference distribution of ('rigidity', {-4: 53, -3: 423, -2: 327, -1: 289, 0: 911, 1: 531, 2: 145, 3: 242, 4: 151})
+Countwise difference distribution of ('sentience', {-5: 53, -4: 28, -3: 98, -2: 69, -1: 129, 0: 1290, 1: 116, 2: 212, 3: 324, 4: 135, 5: 618})
+Countwise difference distribution of ('size', {-6: 11, -5: 52, -4: 107, -3: 228, -2: 337, -1: 400, 0: 563, 1: 481, 2: 373, 3: 377, 4: 70, 5: 63, 6: 10})
+Countwise difference distribution of ('weight', {-6: 11, -5: 46, -4: 104, -3: 175, -2: 286, -1: 369, 0: 596, 1: 577, 2: 432, 3: 336, 4: 67, 5: 61, 6: 12})
+
+Percentagewise difference distribution of ('masscount', {-3: 5.47, -2: 1.14, -1: 0.72, 0: 69.01, 1: 3.42, 2: 1.92, 3: 18.33})
+Percentagewise difference distribution of ('phase', {-2: 2.7, -1: 3.32, 0: 74.58, 1: 10.64, 2: 8.76})
+Percentagewise difference distribution of ('rigidity', {-4: 1.73, -3: 13.77, -2: 10.64, -1: 9.41, 0: 29.65, 1: 17.29, 2: 4.72, 3: 7.88, 4: 4.92})
+Percentagewise difference distribution of ('sentience', {-5: 1.73, -4: 0.91, -3: 3.19, -2: 2.25, -1: 4.2, 0: 41.99, 1: 3.78, 2: 6.9, 3: 10.55, 4: 4.39, 5: 20.12})
+Percentagewise difference distribution of ('size', {-6: 0.36, -5: 1.69, -4: 3.48, -3: 7.42, -2: 10.97, -1: 13.02, 0: 18.33, 1: 15.66, 2: 12.14, 3: 12.27, 4: 2.28, 5: 2.05, 6: 0.33})
+Percentagewise difference distribution of ('weight', {-6: 0.36, -5: 1.5, -4: 3.39, -3: 5.7, -2: 9.31, -1: 12.01, 0: 19.4, 1: 18.78, 2: 14.06, 3: 10.94, 4: 2.18, 5: 1.99, 6: 0.39})
+
+№5: World knowledge augmentation
+
+Category landmarks:
+Edibility - mountain, rock, paper, coconut, strawberry, water
+Naturalness - moon, flower, hut, plastic, car, skyscraper 
+Hollowness - bubble, football, sponge, mammal, wood, iron
+
+coach = ['rock', 'flower', 'mammal']
+lace = ['paper', 'plastic', 'sponge']
+rod = ['rock', 'plastic', 'iron']
+tent = ['rock', 'hut', 'sponge']
+skin = ['coconut', 'flower', 'mammal']
+chair = ['rock', 'hut', 'wood']
+dumbbell = ['rock', 'plastic', 'iron']
+toothpick = ['paper', 'hut', 'wood']
+milk = ['water', 'flower', 'sponge']
+carpet = ['rock', 'hut', 'sponge']
+trolley = ['mountain', 'car', 'football']
+grape = ['strawberry', 'flower', 'sponge']
+mallet = ['rock', 'hut', 'wood']
+graph = ['paper', 'plastic', 'sponge']
+nose = ['coconut', 'flower', 'mammal']
+bike = ['mountain', 'plastic', 'iron']
+gravel = ['rock', 'moon', 'iron']
+woman = ['rock', 'flower', 'mammal']
+string = ['paper', 'hut', 'sponge']
+dollar = ['paper', 'plastic', 'sponge']
+blanket = ['rock', 'plastic', 'sponge']
+screwdriver = ['rock', 'plastic', 'iron']
+spoon = ['rock', 'hut', 'iron']
+legos = ['rock', 'plastic', 'sponge']
+school = ['mountain', 'car', 'football']
+cable = ['rock', 'car', 'sponge']
+policeman = ['rock', 'flower', 'mammal']
+brother = ['rock', 'flower', 'mammal']
+gum = ['strawberry', 'plastic', 'sponge']
+sand = ['paper', 'moon', 'sponge']
+sidewalk = ['mountain', 'car', 'iron']
+cookies = ['strawberry', 'hut', 'sponge']
+fence = ['rock', 'hut', 'wood']
+crow = ['coconut', 'flower', 'mammal']
+sign = ['rock', 'hut', 'wood']
+chef = ['rock', 'flower', 'mammal']
+wife = ['rock', 'flower', 'mammal']
+acid = ['water', 'flower', 'bubble']
+panda = ['rock', 'flower', 'mammal']
+sun = ['mountain', 'moon', 'sponge']
+stool = ['rock', 'hut', 'wood']
+net = ['rock', 'hut', 'sponge']
+bird = ['coconut', 'flower', 'mammal']
+body = ['rock', 'flower', 'mammal']
+leg = ['coconut', 'flower', 'mammal']
+kangaroo = ['rock', 'flower', 'mammal']
+water = ['water', 'moon', 'sponge']
+witch = ['rock', 'hut', 'mammal']
+sink = ['mountain', 'plastic', 'wood']
+pancake = ['strawberry', 'hut', 'sponge']
