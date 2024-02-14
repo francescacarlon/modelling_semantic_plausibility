@@ -3,7 +3,7 @@ Results for PAP characteristics
 
 [Code]
 
-Run PAP_Dataset.py in a folder with the following PAP files to analyze them:
+Run analyze_pap.py in a folder with the following PAP files to analyze them:
 
 - "dataset.tsv"
 - "dev.csv", "train.csv" and "test.csv"
