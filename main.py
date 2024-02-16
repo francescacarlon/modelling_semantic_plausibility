@@ -30,15 +30,15 @@ if choice_load == 2:
 
 # Choose model
 # See references for additional credits and source
-print("Choose model: 1 = Roberta Base, 2 = Quy Fine-tuned Distilbert")
+print("Choose model: 1 = Porada, 2 = Quy")
 choice_model = int(input())
 if choice_model == 1:
   model_name = "ianporada/roberta_base_plausibility"
-  monicker = "Roberta Base"
+  monicker = "Porada"
   #labels = 0/1 = plausible/implausible
 elif choice_model == 2:
   model_name = "nguyenhongquy/distilbert-base-uncased-semantic-plausibility"
-  monicker = "Fine-tuned Base Uncased Distilbert"
+  monicker = "Quy"
   #labels = PLAUSIBLE/IMPLAUSIBLE
 
 ### I. Get Data ###
@@ -175,7 +175,8 @@ for id, result in enumerate(results):
     probabilities.append(prob)
 
     # Normalize prediction scores
-    if prob >= 0.88:
+    # IMPORTANT! You can change the classification threshold here according to the ROC curve
+    if prob >= 0.5:
       prob = 1
     else:
       prob = 0
@@ -211,12 +212,12 @@ plim_f1 = ( (pl_f1 * pl_total) + (im_f1 * im_total) ) / ( pl_total + im_total )
 # This and the threshold calculation were mostly taken from a machinelearningmastery.com article (see references in readme)
 fpr, tpr, thresholds = roc_curve(validation, probabilities)
 
-# Print/visualize evaluation
-
 print("Got the evaluation!")
 
 # Get the wrong events here
 #for case in wrong_cases: print(case)
+
+# Print/visualize evaluation
 
 # Print confusion matrix
 print(f"True Positive = {evaluation['tp']} / False Positive = {evaluation['fp']}")
